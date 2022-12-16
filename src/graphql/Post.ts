@@ -1,127 +1,44 @@
-import {gql, useMutation, useLazyQuery, useQuery} from '@apollo/client';
+import {gql, useQuery} from '@apollo/client';
+import {Post, PageInfo} from './fragments';
+
+console.log(Post);
+console.log('PageInfo',PageInfo);
 
 const VIEW_POST_PAGINATION = gql`
-  query Query($limit: Int, $cursor: InputPostCursor) {
-    posts(limit: $limit, cursor: $cursor) {
+  ${Post}
+  ${PageInfo}
+  query PostQuery(
+    $before: String
+    $after: String
+    $params: String
+    $p: Int
+    $self: String
+  ) {
+    posts(before: $before, after: $after, params: $params, p: $p, self: $self) {
       edges {
         node {
-          id
-          caption
-          age
-          commentsCount
-          reactions {
-            reactionsCount
-          }
-          album {
-            url
-            formats {
-              thumbnail {
-                mime
-                ext
-                name
-                width
-                height
-                url
-                size
-                __typename
-              }
-              medium {
-                name
-                mime
-                ext
-                width
-                height
-                size
-                url
-                __typename
-              }
-              small {
-                name
-                mime
-                ext
-                width
-                height
-                size
-                url
-                __typename
-              }
-              __typename
-            }
-            __typename
-          }
-          owner {
-            id
-            fullname
-            avatar {
-              id
-              url
-              formats {
-                thumbnail {
-                  url
-                  __typename
-                }
-                __typename
-              }
-              __typename
-            }
-            sports {
-              sportstyle {
-                key
-                displayname
-                __typename
-              }
-              sporttype {
-                displayname
-                key
-                __typename
-              }
-              __typename
-            }
-            __typename
-          }
-          __typename
+          ...post
         }
-        __typename
       }
-      postPageInfo {
-        threshold
-        cursorPrevious {
-          opts {
-            value
-            type
-          }
-          value
-          direction
-        }
-        cursorNext {
-          direction
-          value
-          opts {
-            value
-            type
-          }
-        }
+      pageInfo {
+        ...pageInfo
       }
     }
   }
 `;
 
 //  pagination check.
-export const usePostQuery = () => {
+export const usePostQuery = (post_id=null,params={}) => {
   // return useQuery(VIEW_POST_PAGINATION);
   const getPaginatedPost = useQuery(VIEW_POST_PAGINATION, {
     variables: {
-      limit: 6,
-      cursor: {
-        direction: 'next',
-        value: null,
-        opts: {
-          value: 'all',
-          type: 'owner',
-        },
-      },
+      p: post_id,
+      params: JSON.stringify(params),
     },
   });
-
+  //postObj.loading = getPaginatedPost.loading;
+  //postObj.refetch = getPaginatedPost.refetch;
+  //postObj.fetchMore = getPaginatedPost.fetchMore;
+  //postObj.get = () => getPaginatedPost.data?.post;
   return getPaginatedPost;
 };

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://demo.bighit.fans';
+const API_BASE_URL = 'https://stress-api.bighit.fans/v12';
 
 const Link = {
   GRAPHQL_URL: `${API_BASE_URL}/graphql`,
